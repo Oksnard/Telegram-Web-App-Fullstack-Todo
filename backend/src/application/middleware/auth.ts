@@ -4,15 +4,10 @@ export interface AuthContext {
 
 export function extractUserId(context: AuthContext): number | null {
   const userIdHeader = context.request.headers.get('x-user-id')
+  if (!userIdHeader) return null
 
-  if (userIdHeader) {
-    const userId = parseInt(userIdHeader)
-    if (!isNaN(userId)) {
-      return userId
-    }
-  }
-
-  return null
+  const userId = parseInt(userIdHeader)
+  return isNaN(userId) ? null : userId
 }
 
 export function requireAuth(context: AuthContext): number {

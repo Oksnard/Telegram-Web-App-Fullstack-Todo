@@ -12,7 +12,7 @@ ToDo менеджер для Telegram Mini App.
 Frontend построен по Feature-Sliced Design (app → pages → features → entities → shared).
 
 Backend следует Clean Architecture с разделением на domain, application и infrastructure слои.
-
+Фй  ц2увысчя<!-- фй1ц23уывчяй1Ц2УЫВЧСЯфй1ц23увычяй1фцыяФЧФФ ЙФ  ]й1фЯ   Й1ЦФЫЯЧФй   фыцувкасчФйыцу3кваепмквуыцй1    ]ФЯЫЦЙ21    ыф -->
 ## Установка и запуск
 
 ```bash

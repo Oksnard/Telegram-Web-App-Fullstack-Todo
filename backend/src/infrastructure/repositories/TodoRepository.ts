@@ -11,8 +11,8 @@ export class TodoRepository implements ITodoRepository {
   }
 
   async findById(id: number): Promise<Todo | null> {
-    const result = await db.select().from(todos).where(eq(todos.id, id))
-    return result[0] || null
+    const [result] = await db.select().from(todos).where(eq(todos.id, id))
+    return result ?? null
   }
 
   async create(data: CreateTodoDto): Promise<Todo> {
@@ -29,13 +29,13 @@ export class TodoRepository implements ITodoRepository {
   }
 
   async update(id: number, userId: number, completed: boolean): Promise<Todo | null> {
-    const result = await db
+    const [result] = await db
       .update(todos)
       .set({ completed })
       .where(and(eq(todos.id, id), eq(todos.userId, userId)))
       .returning()
 
-    return result[0] || null
+    return result ?? null
   }
 
   async delete(id: number, userId: number): Promise<boolean> {

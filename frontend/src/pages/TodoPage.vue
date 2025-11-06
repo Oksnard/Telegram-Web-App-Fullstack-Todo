@@ -63,19 +63,15 @@ onMounted(async () => {
   }
 })
 
-const handleToggleTodo = async (todoId: number) => {
-  try {
-    await todoStore.toggleTodo(todoId)
-  } catch (error) {
+const handleToggleTodo = (todoId: number) => {
+  todoStore.toggleTodo(todoId).catch((error) => {
     console.error('Failed to toggle todo:', error)
-  }
+  })
 }
 
-const handleDeleteTodo = async (todoId: number) => {
-  try {
-    await deleteTodo(todoId)
-  } catch (error) {
+const handleDeleteTodo = (todoId: number) => {
+  deleteTodo(todoId).catch((error) => {
     console.error('Failed to delete todo:', error)
-  }
+  })
 }
 </script>

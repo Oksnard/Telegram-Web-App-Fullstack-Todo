@@ -5,6 +5,6 @@ export class GetTodos {
   constructor(private todoRepository: ITodoRepository) {}
 
   async execute(userId: number): Promise<Todo[]> {
-    return await this.todoRepository.findByUserId(userId)
+    return this.todoRepository.findByUserId(userId)
   }
 }

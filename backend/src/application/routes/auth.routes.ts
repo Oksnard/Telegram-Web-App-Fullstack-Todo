@@ -7,12 +7,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' }).post(
   '/telegram',
   async ({ body, set }) => {
     try {
-      const { initData } = body as { initData: string }
-
-      if (!initData) {
-        set.status = 400
-        return { error: 'initData is required' }
-      }
+      const { initData } = body
 
       const botToken = process.env.TELEGRAM_BOT_TOKEN
       if (!botToken) {
@@ -20,26 +15,18 @@ export const authRoutes = new Elysia({ prefix: '/auth' }).post(
         return { error: 'Bot token not configured' }
       }
 
-      const telegramValidator = new TelegramValidator(botToken)
-      const userRepository = new UserRepository()
-      const authenticateUser = new AuthenticateUser(userRepository, telegramValidator)
-
-      const user = await authenticateUser.execute(initData)
+      const user = await new AuthenticateUser(
+        new UserRepository(),
+        new TelegramValidator(botToken)
+      ).execute(initData)
 
       if (!user) {
         set.status = 401
         return { error: 'Invalid Telegram data' }
       }
 
-      return {
-        user: {
-          id: user.id,
-          telegramId: user.telegramId,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-        },
-      }
+      const { id, telegramId, firstName, lastName, username } = user
+      return { user: { id, telegramId, firstName, lastName, username } }
     } catch (error) {
       console.error('Auth error:', error)
       set.status = 500

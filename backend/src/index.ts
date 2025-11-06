@@ -8,40 +8,39 @@ const app = new Elysia()
     cors({
       origin: (req) => {
         const origin = req.headers.get('origin')
-        if (origin?.includes('localhost') || origin?.includes('127.0.0.1')) {
-          return origin
-        }
-        return process.env.FRONTEND_URL || 'http://localhost:5174'
+        return origin?.includes('localhost') || origin?.includes('127.0.0.1')
+          ? origin
+          : process.env.FRONTEND_URL || 'http://localhost:5174'
       },
       credentials: true,
     })
   )
-
   .get('/', () => ({
     message: 'Todo Telegram Mini App API',
     version: '1.0.0',
   }))
-
   .use(authRoutes)
   .use(todosRoutes)
-
   .onError(({ code, error, set }) => {
     console.error('Error:', code, error)
 
-    if (code === 'NOT_FOUND') {
-      set.status = 404
-      return { error: 'Route not found' }
+    const statusMap: Record<string, number> = {
+      NOT_FOUND: 404,
+      VALIDATION: 400,
     }
 
-    if (code === 'VALIDATION') {
-      set.status = 400
-      return { error: 'Validation error', details: error.message }
-    }
+    set.status = statusMap[code] || 500
 
-    set.status = 500
-    return { error: 'Internal server error' }
+    return {
+      error:
+        code === 'NOT_FOUND'
+          ? 'Route not found'
+          : code === 'VALIDATION'
+            ? 'Validation error'
+            : 'Internal server error',
+      ...(code === 'VALIDATION' && { details: error.message }),
+    }
   })
-
   .listen(process.env.PORT || 3000)
 
 console.log(`Server is running at ${app.server?.hostname}:${app.server?.port}`)

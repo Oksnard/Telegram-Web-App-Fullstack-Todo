@@ -18,21 +18,20 @@ export const useAuthStore = defineStore('auth', () => {
   const authenticate = async () => {
     try {
       const telegramStore = useTelegramStore()
-
       if (!telegramStore.initDataRaw) {
         throw new Error('Telegram initData is not available')
       }
 
-      const response = await apiClient.post('/auth/telegram', {
+      const { data } = await apiClient.post<{ user: User }>('/auth/telegram', {
         initData: telegramStore.initDataRaw,
       })
 
-      if (response.data.user) {
-        user.value = response.data.user
+      if (data.user) {
+        user.value = data.user
         isAuthenticated.value = true
-        localStorage.setItem('userId', response.data.user.id.toString())
+        localStorage.setItem('userId', data.user.id.toString())
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Authentication error:', error)
       throw new Error('Не удалось выполнить аутентификацию')
     }

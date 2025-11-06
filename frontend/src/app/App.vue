@@ -10,7 +10,9 @@
     <div v-else-if="error" class="flex items-center justify-center min-h-screen p-4">
       <div class="text-center">
         <p class="text-red-500 mb-4">{{ error }}</p>
-        <button class="bg-tg-button text-tg-button-text px-4 py-2 rounded-lg" @click="retry">Попробовать снова</button>
+        <button class="bg-tg-button text-tg-button-text px-4 py-2 rounded-lg" @click="init">
+          Попробовать снова
+        </button>
       </div>
     </div>
 
@@ -34,20 +36,14 @@ const init = async () => {
   try {
     isLoading.value = true
     error.value = ''
-
     await telegramStore.init()
     await authStore.authenticate()
-
-    isLoading.value = false
-  } catch (e: any) {
+  } catch (e) {
     console.error('Initialization error:', e)
-    error.value = e.message || 'Не удалось инициализировать приложение'
+    error.value = (e as Error).message || 'Не удалось инициализировать приложение'
+  } finally {
     isLoading.value = false
   }
-}
-
-const retry = () => {
-  init()
 }
 
 onMounted(() => {

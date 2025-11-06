@@ -5,11 +5,11 @@ export class CreateTodo {
   constructor(private todoRepository: ITodoRepository) {}
 
   async execute(userId: number, title: string): Promise<Todo> {
-    if (!title || title.trim().length === 0) {
+    if (!title?.trim()) {
       throw new Error('Title cannot be empty')
     }
 
-    return await this.todoRepository.create({
+    return this.todoRepository.create({
       userId,
       title: title.trim(),
     })

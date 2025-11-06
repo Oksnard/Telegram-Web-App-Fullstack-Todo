@@ -38,11 +38,11 @@ const handleSubmit = async () => {
   try {
     isSubmitting.value = true
     error.value = ''
-
     await todoStore.createTodo({ title: title.value.trim() })
     title.value = ''
-  } catch (e: any) {
-    error.value = e.response?.data?.error || 'Не удалось добавить задачу'
+  } catch (e) {
+    const axiosError = e as { response?: { data?: { error?: string } } }
+    error.value = axiosError.response?.data?.error || 'Не удалось добавить задачу'
   } finally {
     isSubmitting.value = false
   }

@@ -6,46 +6,54 @@ import { ToggleTodo } from '../use-cases/ToggleTodo'
 import { DeleteTodo } from '../use-cases/DeleteTodo'
 import { requireAuth } from '../middleware/auth'
 
+const handleError = (error: unknown, set: { status: number }, operation: string) => {
+  const err = error as Error
+  console.error(`${operation} error:`, err)
+
+  const statusMap: Record<string, number> = {
+    Unauthorized: 401,
+    'Todo not found or unauthorized': 404,
+  }
+
+  set.status = statusMap[err.message] || 500
+  return { error: err.message || `Failed to ${operation.toLowerCase()}` }
+}
+
+const parseTodoId = (id: string, set: { status: number }) => {
+  const todoId = parseInt(id)
+  if (isNaN(todoId)) {
+    set.status = 400
+    throw new Error('Invalid todo ID')
+  }
+  return todoId
+}
+
 export const todosRoutes = new Elysia({ prefix: '/todos' })
   .get('/', async ({ request, set }) => {
     try {
       const userId = requireAuth({ request })
-
-      const todoRepository = new TodoRepository()
-      const getTodos = new GetTodos(todoRepository)
-
-      const todos = await getTodos.execute(userId)
-
+      const todos = await new GetTodos(new TodoRepository()).execute(userId)
       return { todos }
-    } catch (error: any) {
-      console.error('Get todos error:', error)
-      set.status = error.message === 'Unauthorized' ? 401 : 500
-      return { error: error.message || 'Failed to get todos' }
+    } catch (error) {
+      return handleError(error, set, 'Get todos')
     }
   })
-
   .post(
     '/',
     async ({ request, body, set }) => {
       try {
         const userId = requireAuth({ request })
-        const { title } = body as { title: string }
+        const { title } = body
 
-        if (!title || title.trim().length === 0) {
+        if (!title?.trim()) {
           set.status = 400
           return { error: 'Title is required' }
         }
 
-        const todoRepository = new TodoRepository()
-        const createTodo = new CreateTodo(todoRepository)
-
-        const todo = await createTodo.execute(userId, title)
-
+        const todo = await new CreateTodo(new TodoRepository()).execute(userId, title)
         return { todo }
-      } catch (error: any) {
-        console.error('Create todo error:', error)
-        set.status = error.message === 'Unauthorized' ? 401 : 500
-        return { error: error.message || 'Failed to create todo' }
+      } catch (error) {
+        return handleError(error, set, 'Create todo')
       }
     },
     {
@@ -54,63 +62,23 @@ export const todosRoutes = new Elysia({ prefix: '/todos' })
       }),
     }
   )
-
   .patch('/:id/toggle', async ({ request, params, set }) => {
     try {
       const userId = requireAuth({ request })
-      const todoId = parseInt(params.id)
-
-      if (isNaN(todoId)) {
-        set.status = 400
-        return { error: 'Invalid todo ID' }
-      }
-
-      const todoRepository = new TodoRepository()
-      const toggleTodo = new ToggleTodo(todoRepository)
-
-      const todo = await toggleTodo.execute(todoId, userId)
-
+      const todoId = parseTodoId(params.id, set)
+      const todo = await new ToggleTodo(new TodoRepository()).execute(todoId, userId)
       return { todo }
-    } catch (error: any) {
-      console.error('Toggle todo error:', error)
-
-      if (error.message === 'Unauthorized' || error.message === 'Todo not found or unauthorized') {
-        set.status = 404
-      } else {
-        set.status = 500
-      }
-
-      return { error: error.message || 'Failed to toggle todo' }
+    } catch (error) {
+      return handleError(error, set, 'Toggle todo')
     }
   })
-
   .delete('/:id', async ({ request, params, set }) => {
     try {
       const userId = requireAuth({ request })
-      const todoId = parseInt(params.id)
-
-      if (isNaN(todoId)) {
-        set.status = 400
-        return { error: 'Invalid todo ID' }
-      }
-
-      const todoRepository = new TodoRepository()
-      const deleteTodo = new DeleteTodo(todoRepository)
-
-      await deleteTodo.execute(todoId, userId)
-
+      const todoId = parseTodoId(params.id, set)
+      await new DeleteTodo(new TodoRepository()).execute(todoId, userId)
       return { success: true }
-    } catch (error: any) {
-      console.error('Delete todo error:', error)
-
-      if (error.message === 'Unauthorized') {
-        set.status = 401
-      } else if (error.message === 'Todo not found or unauthorized') {
-        set.status = 404
-      } else {
-        set.status = 500
-      }
-
-      return { error: error.message || 'Failed to delete todo' }
+    } catch (error) {
+      return handleError(error, set, 'Delete todo')
     }
   })

@@ -12,10 +12,9 @@ export const useTodoStore = defineStore('todo', () => {
     try {
       isLoading.value = true
       error.value = ''
-
-      const response = await apiClient.get('/todos')
-      todos.value = response.data.todos || []
-    } catch (e: any) {
+      const { data } = await apiClient.get<{ todos: Todo[] }>('/todos')
+      todos.value = data.todos ?? []
+    } catch (e) {
       console.error('Fetch todos error:', e)
       error.value = 'Не удалось загрузить задачи'
       throw e
@@ -28,15 +27,12 @@ export const useTodoStore = defineStore('todo', () => {
     try {
       isLoading.value = true
       error.value = ''
-
-      const response = await apiClient.post('/todos', data)
-
-      if (response.data.todo) {
-        todos.value.unshift(response.data.todo)
+      const { data: response } = await apiClient.post<{ todo: Todo }>('/todos', data)
+      if (response.todo) {
+        todos.value.unshift(response.todo)
       }
-
-      return response.data.todo
-    } catch (e: any) {
+      return response.todo
+    } catch (e) {
       console.error('Create todo error:', e)
       error.value = 'Не удалось создать задачу'
       throw e
@@ -47,15 +43,14 @@ export const useTodoStore = defineStore('todo', () => {
 
   const toggleTodo = async (todoId: number) => {
     try {
-      const response = await apiClient.patch(`/todos/${todoId}/toggle`)
-
-      if (response.data.todo) {
+      const { data } = await apiClient.patch<{ todo: Todo }>(`/todos/${todoId}/toggle`)
+      if (data.todo) {
         const index = todos.value.findIndex((t) => t.id === todoId)
         if (index !== -1) {
-          todos.value[index] = response.data.todo
+          todos.value[index] = data.todo
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error('Toggle todo error:', e)
       error.value = 'Не удалось обновить задачу'
       throw e
@@ -66,10 +61,9 @@ export const useTodoStore = defineStore('todo', () => {
     try {
       isLoading.value = true
       error.value = ''
-
       await apiClient.delete(`/todos/${todoId}`)
       todos.value = todos.value.filter((todo) => todo.id !== todoId)
-    } catch (e: any) {
+    } catch (e) {
       console.error('Delete todo error:', e)
       error.value = 'Не удалось удалить задачу'
       throw e

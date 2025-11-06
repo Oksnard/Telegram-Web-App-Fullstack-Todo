@@ -6,8 +6,8 @@ import { User, CreateUserDto } from '../../domain/entities/User'
 
 export class UserRepository implements IUserRepository {
   async findByTelegramId(telegramId: number): Promise<User | null> {
-    const result = await db.select().from(users).where(eq(users.telegramId, telegramId))
-    return result[0] || null
+    const [result] = await db.select().from(users).where(eq(users.telegramId, telegramId))
+    return result ?? null
   }
 
   async create(data: CreateUserDto): Promise<User> {
@@ -25,12 +25,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async findOrCreate(data: CreateUserDto): Promise<User> {
-    const existingUser = await this.findByTelegramId(data.telegramId)
-
-    if (existingUser) {
-      return existingUser
-    }
-
-    return await this.create(data)
+    return (await this.findByTelegramId(data.telegramId)) ?? this.create(data)
   }
 }

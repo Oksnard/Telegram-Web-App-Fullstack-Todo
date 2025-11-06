@@ -29,10 +29,7 @@ export class TelegramValidator {
         return null
       }
 
-      const authDate = parsed.auth_date
-      const currentTime = Math.floor(Date.now() / 1000)
-      const timeDiff = currentTime - authDate
-
+      const timeDiff = Math.floor(Date.now() / 1000) - parsed.auth_date
       if (timeDiff > 86400) {
         console.error('Auth data is too old')
         return null
@@ -47,16 +44,11 @@ export class TelegramValidator {
 
   private parseInitData(initData: string): TelegramInitData {
     const params = new URLSearchParams(initData)
-    const data: any = {}
+    const data: Record<string, any> = {}
 
     for (const [key, value] of params.entries()) {
-      if (key === 'user') {
-        data[key] = JSON.parse(value)
-      } else if (key === 'auth_date') {
-        data[key] = parseInt(value)
-      } else {
-        data[key] = value
-      }
+      data[key] =
+        key === 'user' ? JSON.parse(value) : key === 'auth_date' ? parseInt(value) : value
     }
 
     return data as TelegramInitData
