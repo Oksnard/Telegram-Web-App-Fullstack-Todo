@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
-import { authRoutes } from './application/routes/auth.routes'
-import { todosRoutes } from './application/routes/todos.routes'
+import { authRoutes } from '@application/routes/auth.routes'
+import { todosRoutes } from '@application/routes/todos.routes'
 
 const app = new Elysia()
   .use(

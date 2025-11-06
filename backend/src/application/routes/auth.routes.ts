@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
-import { AuthenticateUser } from '../use-cases/AuthenticateUser'
-import { UserRepository } from '../../infrastructure/repositories/UserRepository'
-import { TelegramValidator } from '../../infrastructure/telegram/validator'
+import { AuthenticateUser } from '@application/use-cases/AuthenticateUser'
+import { UserRepository } from '@infrastructure/repositories/UserRepository'
+import { TelegramValidator } from '@infrastructure/telegram/validator'
 
 export const authRoutes = new Elysia({ prefix: '/auth' }).post(
   '/telegram',
