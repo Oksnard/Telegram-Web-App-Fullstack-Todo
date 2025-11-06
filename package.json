@@ -1,0 +1,33 @@
+{
+  "name": "todo-telegram-mini-app",
+  "version": "1.0.0",
+  "description": "Todo Telegram Mini App with Vue 3 and Elysia",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "build": "npm run build --workspaces",
+    "frontend:dev": "npm run dev -w frontend",
+    "backend:dev": "npm run dev -w backend",
+    "db:generate": "npm run db:generate -w backend",
+    "db:migrate": "npm run db:migrate -w backend",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write \"**/*.{js,ts,vue,json}\""
+  },
+  "keywords": [
+    "telegram",
+    "mini-app",
+    "vue",
+    "elysia",
+    "todo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "prettier": "^3.1.0"
+  }
+}
