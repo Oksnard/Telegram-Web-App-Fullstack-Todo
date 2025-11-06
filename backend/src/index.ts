@@ -8,9 +8,21 @@ const app = new Elysia()
     cors({
       origin: (req) => {
         const origin = req.headers.get('origin')
-        return origin?.includes('localhost') || origin?.includes('127.0.0.1')
-          ? origin
-          : process.env.FRONTEND_URL || 'http://localhost:5174'
+        if (!origin) return false
+        
+        // Разрешаем localhost и ngrok домены
+        if (
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1') ||
+          origin.includes('.ngrok-free.dev') ||
+          origin.includes('.ngrok.io') ||
+          origin.includes('.loca.lt') ||
+          origin.includes('.trycloudflare.com')
+        ) {
+          return origin
+        }
+        
+        return process.env.FRONTEND_URL || 'http://localhost:5174'
       },
       credentials: true,
     })
